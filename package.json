@@ -1,6 +1,0 @@
-{
-  "name": "doodle-math-lab",
-  "private": true,
-  "type": "module",
-  "scripts": { "test": "node tests/evaluator.test.mjs" }
-}
