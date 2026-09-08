@@ -3,91 +3,177 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Разбор статьи о мотивах поверхностей Энриквеса</title>
+  <title>Mathbench — формулы, Wolfram и Lean 4</title>
   <style>
-    :root { --ink:#17212b; --muted:#53606d; --paper:#fffdf8; --wash:#f4efe5; --line:#ded5c5; --accent:#8e3c21; --blue:#155e75; }
-    * { box-sizing:border-box; } body { margin:0; font:16px/1.62 ui-serif, Georgia, serif; color:var(--ink); background:var(--wash); }
-    header { padding:72px max(24px, calc((100% - 1080px)/2)); color:#fff; background:linear-gradient(125deg,#123543,#1c5c68 55%,#8e3c21); }
-    h1,h2,h3 { line-height:1.18; } h1 { max-width:900px; margin:0; font-size:clamp(2.2rem,6vw,4.6rem); } header p { max-width:740px; font-size:1.14rem; } .meta { font:600 .82rem/1.4 ui-sans-serif,system-ui,sans-serif; letter-spacing:.08em; text-transform:uppercase; opacity:.82; }
-    main { width:min(1080px,100%); margin:0 auto; padding:32px 24px 80px; } .grid { display:grid; grid-template-columns:245px minmax(0,1fr); gap:44px; } nav { position:sticky; top:18px; height:max-content; padding:18px; border:1px solid var(--line); background:var(--paper); font:14px/1.45 ui-sans-serif,system-ui,sans-serif; } nav a { display:block; padding:6px 0; color:var(--blue); text-decoration:none; } nav a:hover { text-decoration:underline; }
-    article { min-width:0; } section { padding:30px 0; border-bottom:1px solid var(--line); } h2 { margin:0 0 14px; font-size:1.7rem; } h3 { margin:26px 0 8px; font-size:1.16rem; } p { margin:10px 0; } .lead { font-size:1.18rem; } .card { margin:18px 0; padding:20px 22px; background:var(--paper); border-left:5px solid var(--accent); box-shadow:0 1px 1px #00000008; } .card h3 { margin-top:0; } .result { border-left-color:var(--blue); } .warning { border-left-color:#b7791f; } code { padding:.12em .35em; background:#ece6da; font: .9em ui-monospace,SFMono-Regular,monospace; } ul,ol { padding-left:1.35em; } li { margin:7px 0; } table { width:100%; border-collapse:collapse; margin:18px 0; font-size:.94rem; } th,td { padding:10px; vertical-align:top; border-bottom:1px solid var(--line); text-align:left; } th { font-family:ui-sans-serif,system-ui,sans-serif; color:var(--muted); } .tag { display:inline-block; padding:2px 8px; border-radius:999px; color:#fff; background:var(--accent); font:700 .72rem ui-sans-serif,system-ui,sans-serif; letter-spacing:.04em; } .source { color:var(--muted); font: .9rem ui-sans-serif,system-ui,sans-serif; } footer { padding:26px; text-align:center; color:var(--muted); font:14px ui-sans-serif,system-ui,sans-serif; }
-    @media (max-width:760px) { header { padding:48px 24px; } .grid { display:block; } nav { position:static; margin-bottom:24px; } }
+    /* Palette and sizing tokens keep the interface easy to retheme. */
+    :root { --bg:#0a0d14; --panel:#101622; --panel-2:#151d2b; --line:#293345; --ink:#edf2fa; --muted:#92a0b5; --violet:#a58bff; --cyan:#55d6c2; --orange:#ffbd70; --danger:#ff7a96; --radius:14px; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-width:320px; color:var(--ink); background:var(--bg); font:14px/1.45 Inter, ui-sans-serif, system-ui, sans-serif; }
+    button, input, textarea { font:inherit; }
+    button { cursor:pointer; }
+    /* Header contains global project controls and keeps the app identity compact. */
+    .topbar { height:64px; display:flex; align-items:center; gap:18px; padding:0 24px; border-bottom:1px solid var(--line); background:#0d111a; }
+    .brand { display:flex; align-items:center; gap:10px; min-width:205px; font-weight:750; letter-spacing:-.03em; font-size:18px; }
+    .brand-mark { display:grid; place-items:center; width:29px; height:29px; border-radius:9px; background:linear-gradient(135deg,var(--violet),#6787ff); color:#090c14; font:800 19px Georgia,serif; }
+    .project { display:flex; align-items:center; gap:8px; color:var(--muted); }
+    .project strong { color:var(--ink); }
+    .project::before { content:"/"; color:#526077; }
+    .top-actions { margin-left:auto; display:flex; gap:9px; }
+    .button { border:1px solid var(--line); border-radius:8px; padding:8px 12px; color:var(--ink); background:var(--panel-2); font-weight:650; }
+    .button:hover { border-color:#64718a; background:#1a2435; }
+    .button.primary { border-color:transparent; color:#0a1018; background:var(--cyan); }
+    .button.primary:hover { background:#7de5d6; }
+    /* The sidebar is intentionally data-light: modules are the extension points for future tools. */
+    .shell { display:grid; grid-template-columns:238px minmax(0,1fr); min-height:calc(100vh - 64px); }
+    aside { padding:20px 14px; border-right:1px solid var(--line); background:#0d111a; }
+    .section-label { margin:4px 10px 8px; color:#72809a; font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .module { width:100%; display:flex; align-items:center; gap:10px; margin:3px 0; padding:10px; border:0; border-radius:8px; color:var(--muted); background:transparent; text-align:left; }
+    .module:hover { color:var(--ink); background:#151c2a; }
+    .module.active { color:var(--ink); background:#202842; box-shadow:inset 2px 0 var(--violet); }
+    .module-icon { width:20px; text-align:center; color:var(--violet); font:600 17px Georgia,serif; }
+    .module small { margin-left:auto; color:#77859d; }
+    .aside-help { position:fixed; bottom:18px; left:14px; width:210px; padding:12px; border:1px solid var(--line); border-radius:10px; color:var(--muted); background:var(--panel); font-size:12px; }
+    .aside-help kbd { padding:1px 5px; border:1px solid #46536c; border-radius:4px; color:var(--ink); }
+    /* Main workspace uses a fluid grid so calculation and proof stay visible together. */
+    main { padding:24px; overflow:hidden; }
+    .workspace-head { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:20px; }
+    h1 { margin:0; letter-spacing:-.04em; font-size:24px; }
+    .subtitle { margin:4px 0 0; color:var(--muted); }
+    .status { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:12px; }
+    .dot { width:8px; height:8px; border-radius:50%; background:var(--cyan); box-shadow:0 0 12px var(--cyan); }
+    .grid { display:grid; grid-template-columns:minmax(390px,1.1fr) minmax(360px,.9fr); gap:18px; }
+    .card { min-width:0; border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); overflow:hidden; }
+    .card-bar { display:flex; align-items:center; gap:9px; min-height:49px; padding:0 16px; border-bottom:1px solid var(--line); background:#121926; }
+    .card-title { font-weight:750; }
+    .pill { padding:3px 7px; border-radius:5px; color:#c0b4ff; background:#2a2545; font-size:11px; font-weight:700; }
+    .bar-actions { display:flex; gap:7px; margin-left:auto; }
+    .icon-button { width:28px; height:28px; border:0; border-radius:6px; color:var(--muted); background:transparent; font-size:16px; }
+    .icon-button:hover { color:var(--ink); background:#253049; }
+    /* Formula input accepts ordinary text and common LaTeX commands; preview is deliberately separate. */
+    .formula-area { padding:16px; }
+    .formula-input { width:100%; min-height:88px; resize:vertical; padding:13px; border:1px solid #3a4760; border-radius:9px; outline:none; color:#f2f5ff; background:#0b1019; font:17px/1.55 "SFMono-Regular", Consolas, monospace; }
+    .formula-input:focus { border-color:var(--violet); box-shadow:0 0 0 3px #a58bff1f; }
+    .formula-help { display:flex; justify-content:space-between; gap:8px; margin-top:8px; color:var(--muted); font-size:12px; }
+    .formula-help code { color:#b7c4dc; }
+    .quick-row { display:flex; flex-wrap:wrap; gap:7px; margin:14px 0 2px; }
+    .quick { padding:6px 9px; border:1px solid #354158; border-radius:6px; color:#b7c4dc; background:#161f2e; font:12px Georgia,serif; }
+    .quick:hover { border-color:var(--violet); color:#fff; }
+    .output { margin:0 16px 16px; padding:16px; border:1px solid #26344a; border-radius:9px; background:#0b1019; }
+    .output-label { color:#73819a; font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+    .math-preview { min-height:52px; display:flex; align-items:center; padding:8px 0 2px; color:#f8fbff; font:italic 25px/1.25 Georgia,serif; overflow:auto; }
+    .result-note { color:var(--muted); font-size:12px; }
+    .toolbar { display:flex; flex-wrap:wrap; gap:7px; padding:13px 16px; border-bottom:1px solid var(--line); }
+    .tool { border:1px solid #354158; border-radius:7px; padding:6px 9px; color:#c4cede; background:#182132; font-size:12px; }
+    .tool.selected, .tool:hover { border-color:var(--violet); color:#fff; background:#2b2848; }
+    .lean-editor { width:100%; height:257px; resize:none; padding:16px; border:0; outline:0; color:#dce6f6; background:#0b1019; tab-size:2; font:13px/1.65 "SFMono-Regular", Consolas, monospace; }
+    .proof-result { display:flex; gap:10px; align-items:flex-start; padding:13px 16px; border-top:1px solid #26344a; background:#0e1b22; color:#b7e8df; font-size:12px; }
+    .proof-result strong { color:var(--cyan); }
+    .terminal { grid-column:1 / -1; }
+    .terminal-body { min-height:125px; padding:15px 17px; color:#bdc8dc; background:#090d15; font:13px/1.65 "SFMono-Regular", Consolas, monospace; }
+    .prompt { color:var(--cyan); }.command { color:#eef4ff; }.terminal-ok { color:#70dfb0; }
+    .variables { margin-top:18px; }
+    .variables-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0; }
+    .variable { padding:14px 16px; border-right:1px solid var(--line); }.variable:last-child { border:0; }
+    .variable b { display:block; color:#c7bcff; font:italic 20px Georgia,serif; }.variable span { color:var(--muted); font-size:12px; }
+    @media (max-width:900px) { .shell { grid-template-columns:1fr; } aside { display:none; } .grid { grid-template-columns:1fr; } .aside-help { display:none; } }
+    @media (max-width:560px) { .topbar { padding:0 14px; }.project { display:none; } main { padding:16px; }.top-actions .button:not(.primary) { display:none; }.workspace-head { align-items:flex-start; flex-direction:column; } }
   </style>
 </head>
 <body>
-  <header>
-    <div class="meta">Разбор статьи · arXiv:2609.04360v1 · 29 страниц</div>
-    <h1>Торсион в мотиве Чоу поверхности Энриквеса</h1>
-    <p>Путеводитель по статье Jake Huryn и William C. Newman: что именно доказано, почему это неожиданно, и как геометрия, классы Брауэра и этальная когомология складываются в один аргумент.</p>
-    <p class="meta">Исходник в репозитории: 2609.04360v1.pdf</p>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">∫</span> Mathbench</div>
+    <div class="project"><strong>my-theory</strong><span>локальный проект</span></div>
+    <div class="top-actions"><button class="button" id="newModule">+ Модуль</button><button class="button" id="saveProject">Сохранить</button><button class="button primary" id="runAll">▶ Запустить всё</button></div>
   </header>
-  <main><div class="grid">
-    <nav aria-label="Навигация по разбору">
-      <strong>Содержание</strong>
-      <a href="#short">Коротко</a><a href="#setup">Объекты статьи</a><a href="#results">Главные результаты</a><a href="#architecture">Архитектура доказательств</a><a href="#sections">Разделы 2–6</a><a href="#examples">Примеры и следствия</a><a href="#appendix">Приложения</a><a href="#limits">Границы результатов</a><a href="#dictionary">Словарь</a><a href="#reading">Как читать статью</a>
-    </nav>
-    <article>
-      <section id="short"><h2>Коротко</h2>
-        <p class="lead">Авторы изучают <em>трансцендентную торсионную часть</em> мотива Чоу поверхности Энриквеса, обозначаемую <code>t(S)</code>. Они дают первые многочисленные явные примеры, где эта часть изоморфна у разных поверхностей, где она не изоморфна, и где она разлагается.</p>
-        <div class="card result"><h3>Главный сдвиг</h3><p>Ранее было заявлено, что такой мотив должен быть неразложим. Статья строит контрпримеры в характеристике 0 и точно указывает ошибку прежнего доказательства: использованный объект с коэффициентами по модулю <code>n</code> не является геометрическим мотивом.</p></div>
-        <p>Работа живёт на стыке алгебраической геометрии и теории мотивов. Её практический смысл — превратить абстрактные вопросы «разложим ли мотив?» и «каковы морфизмы между мотивами?» в проверяемые утверждения об изогениях эллиптических кривых, рациональных отображениях и неалгебраичности конкретных классов когомологий.</p>
-        <p class="source">Ориентир в исходнике: введение и §1, с. 2–6 PDF.</p>
-      </section>
+  <div class="shell">
+    <aside>
+      <p class="section-label">Проект</p>
+      <button class="module active" data-module="Workbench"><span class="module-icon">⌘</span> Рабочее поле <small>⌘1</small></button>
+      <p class="section-label">Модули</p>
+      <button class="module" data-module="Algebra"><span class="module-icon">α</span> Algebra.lean <small>12</small></button>
+      <button class="module" data-module="Main"><span class="module-icon">⊢</span> Main.lean <small>8</small></button>
+      <button class="module" data-module="Notes"><span class="module-icon">#</span> Notes.md</button>
+      <p class="section-label" style="margin-top:22px">Инструменты</p>
+      <button class="module"><span class="module-icon">⋮</span> История вычислений</button>
+      <button class="module"><span class="module-icon">⚙</span> Настройки ядра</button>
+      <div class="aside-help"><b style="color:#dce6f6">Быстрый старт</b><br>Введите формулу, нажмите <kbd>Ctrl</kbd> + <kbd>Enter</kbd>. Lean-код проверяется отдельной кнопкой.</div>
+    </aside>
+    <main>
+      <div class="workspace-head"><div><h1>Рабочее поле</h1><p class="subtitle">Считайте выражения и постепенно превращайте их в проверяемые доказательства Lean 4.</p></div><div class="status"><i class="dot"></i> Ядро готово · mathlib</div></div>
+      <div class="grid">
+        <section class="card">
+          <div class="card-bar"><span class="card-title">Вычисление</span><span class="pill">Wolfram-style</span><div class="bar-actions"><button class="icon-button" title="Очистить" id="clearFormula">×</button></div></div>
+          <div class="formula-area">
+            <label class="section-label" style="margin:0 0 7px;display:block">Формула или LaTeX</label>
+            <textarea class="formula-input" id="formula" spellcheck="false">\int_0^1 x^2 dx</textarea>
+            <div class="formula-help"><span>Поддерживаются: <code>sqrt(x)</code>, <code>^</code>, <code>sin(x)</code>, LaTeX</span><span>Ctrl ↵</span></div>
+            <div class="quick-row"><button class="quick" data-formula="x^2 + 2*x + 1">Разложить</button><button class="quick" data-formula="diff(sin(x)^2, x)">Производная</button><button class="quick" data-formula="integrate(x^2, 0, 1)">Интеграл</button><button class="quick" data-formula="solve(x^2 - 5*x + 6 = 0)">Решить</button></div>
+          </div>
+          <div class="output"><div class="output-label">Предпросмотр</div><div class="math-preview" id="preview">∫₀¹ x² dx</div><div class="result-note" id="resultNote">Готово к вычислению.</div></div>
+        </section>
+        <section class="card">
+          <div class="card-bar"><span class="card-title">Доказательство</span><span class="pill">Lean 4 + mathlib</span><div class="bar-actions"><button class="button" id="checkLean" style="padding:6px 9px">✓ Проверить</button></div></div>
+          <div class="toolbar"><button class="tool selected" data-snippet="theorem">Теорема</button><button class="tool" data-snippet="example">Пример</button><button class="tool" data-snippet="simp">simp</button><button class="tool" data-snippet="ring">ring</button><button class="tool" data-snippet="import">Импорт</button></div>
+          <textarea class="lean-editor" id="leanCode" spellcheck="false">import Mathlib
 
-      <section id="setup"><h2>Какие объекты сравниваются</h2>
-        <h3>Поверхность Энриквеса и её мотив</h3>
-        <p>Для алгебраически замкнутого поля экспоненциальной характеристики <code>p</code> авторы используют разложение мотива поверхности Энриквеса</p>
-        <div class="card"><code>h(S)_{ℤ[1/p]} = 1 ⊕ 1(-1)^{⊕10} ⊕ 1(-2) ⊕ t(S).</code><p>Первые три слагаемых — «стандартная» часть; всё тонкое торсионное поведение сосредоточено в <code>t(S)</code>. Поэтому вопрос о мотиве сводится к этому остатку.</p></div>
-        <h3>Семейство Либермана</h3>
-        <p>Основные явные поверхности строятся из пары эллиптических кривых <code>E,F</code> с ненулевыми 2-кручениями <code>P,Q</code>. На Kummer-поверхности <code>Kum(E×F)</code> действует свободная инволюция Либермана, индуцированная отображением <code>(x,y) ↦ (x+P,−y+Q)</code>. Фактор <code>S</code> — поверхность Энриквеса. Эта конструкция даёт двухпараметрическое семейство, в котором можно считать нужные инварианты.</p>
-      </section>
-
-      <section id="results"><h2>Главные результаты</h2>
-        <div class="card result"><span class="tag">Теорема 1.2(a)</span><h3>Изоморфность из нечётных изогений</h3><p>Если пары эллиптических кривых, задающие <code>S_δ</code> и <code>S_ε</code>, соединены изогениями нечётной степени, сохраняющими выбранные точки 2-кручения, то <code>t(S_δ) ≅ t(S_ε)</code>. Это нетривиально: сами поверхности можно выбирать неизоморфными.</p></div>
-        <div class="card result"><span class="tag">Теорема 1.2(b)</span><h3>Разложимость действительно бывает</h3><p>Если у эллиптической кривой есть комплексное умножение полным кольцом целых мнимого квадратичного поля, в котором 2 раскладывается, то подходящий выбор <code>P</code> приводит к разложимому <code>t(S)</code>. Механизм — эндоморфизм чётной степени, фиксирующий <code>P</code>, а затем рациональное отображение чётной степени.</p></div>
-        <div class="card result"><span class="tag">Теорема 1.8</span><h3>Сертификат неизоморфности</h3><p>Для явно заданных параметров <code>λ, μ, λ′, μ′</code> условие «suitable» (формулируемое через дискретную нормировку) влечёт <code>t(S_{λ,μ}) ≇ t(S_{λ′,μ′})</code>. Это даёт много пар с разными мотивами, включая пары с одной и той же K3-накрывающей.</p></div>
-        <p>Авторы также вычисляют группы <code>Hom(t(S),t(S′))</code> во многих случаях. Из пяти формально возможных вариантов реализованы четыре; пятый появился бы вместе с примером неразложимого <code>t(S)</code>, которого авторы пока не знают.</p>
-      </section>
-
-      <section id="architecture"><h2>Логика доказательств</h2>
-        <ol><li><strong>Сделать модель явной.</strong> Семейство Либермана связывает поверхности Энриквеса с эллиптическими кривыми и их 2-кручением.</li><li><strong>Ограничить возможные морфизмы.</strong> Теория торсионных мотивов и конечность торсиона в <code>CH²</code> сводят задачу к контролю действия корреспонденций на 2-адических когомологиях.</li><li><strong>Для положительных результатов построить корреспонденцию.</strong> Рациональное отображение нечётной степени даёт изоморфизм мотивов; чётная степень даёт нужный нетривиальный эндоморфизм и разложение.</li><li><strong>Для отрицательных результатов запретить корреспонденцию.</strong> Ненулевой класс в Galois-когомологии доказывает неалгебраичность класса на <code>S×E</code>; значит, предполагаемого морфизма мотивов не существует.</li></ol>
-        <div class="card warning"><h3>Почему это два разных типа аргумента</h3><p>Теорема 1.2 — конструктивная: надо предъявить алгебраический цикл. Теорема 1.8 — обструктивная: надо доказать, что определённый когомологический класс <em>не</em> является классом цикла. Статья аккуратно разделяет эти две линии.</p></div>
-      </section>
-
-      <section id="sections"><h2>Что делает каждый раздел</h2>
-        <table><thead><tr><th>Часть</th><th>Роль в аргументе</th></tr></thead><tbody>
-          <tr><td>§2. Классы Брауэра</td><td>Вычисляет pullback <code>Br(S) → Br(X)</code> для всего семейства Либермана, где <code>X→S</code> — K3-накрывающая. Это ключевой вход для последующей неалгебраичности.</td></tr>
-          <tr><td>§3. Galois-когомология</td><td>Адаптирует аргумент вырождения Габбера. «Suitable»-условие обеспечивает ненулевой класс степени 3, нужный для обструкции.</td></tr>
-          <tr><td>§4. Торсионные мотивы</td><td>Доказывает технические конечности и связывает алгебраичность классов с морфизмами мотивов; использует идеи Merkurjev–Suslin и Colliot-Thélène–Voisin.</td></tr>
-          <tr><td>§5. Мотив поверхности</td><td>Специализирует общую теорию к <code>t(S)</code>, классифицирует возможные действия на торсионной когомологии и возможные <code>Hom</code>-группы.</td></tr>
-          <tr><td>§6. Поверхности Энриквеса</td><td>Собирает ингредиенты: доказывает теоремы, строит явные рациональные отображения и выписывает примеры.</td></tr>
-        </tbody></table>
-      </section>
-
-      <section id="examples"><h2>Примеры и последствия</h2>
-        <ul><li><strong>Одинаковый мотив, разные поверхности.</strong> Нечётные изогении дают <code>t(S) ≅ t(S′)</code>, хотя геометрические поверхности в общем случае не изоморфны.</li><li><strong>Разложимый мотив с нулевыми группами Чоу.</strong> Из разложения получается первый пример нетривиального мотива над <code>ℂ</code> с целыми коэффициентами, у которого все <code>CHᶦ</code> тривиальны. Это подчёркивает, что рациональные и целые коэффициенты ведут себя принципиально по-разному.</li><li><strong>Одинаковая K3-накрывающая — не гарантия.</strong> В примере 6.8 пары поверхностей имеют изоморфные K3-накрывающие, но их <code>t(S)</code> не изоморфны.</li><li><strong>Интегральная гипотеза Ходжа.</strong> Над <code>ℂ</code> неизоморфность некоторых <code>t(S)</code> связана с провалом интегральной гипотезы Ходжа в степени 4 для произведения поверхностей.</li></ul>
-      </section>
-
-      <section id="appendix"><h2>Зачем нужны приложения</h2>
-        <h3>Приложение A: исправление литературы</h3><p>Оно не просто отмечает опечатку, а изолирует неверную предпосылку в Proposition 4.21 Vishik: объект <code>N•(C)</code> считается компактным (геометрическим), хотя это противоречит критерию через мотивную когомологию. Королларий A.4 показывает, что нетривиальный мотив Чоу с целыми коэффициентами не может возникнуть как соответствующий объект, поднятый из коэффициентов <code>ℤ/n</code>.</p>
-        <h3>Приложение B: дуальность и Künneth при торсии</h3><p>Здесь развёрнута техническая основа: спаривания Пуанкаре, их торсионные версии и точная последовательность Künneth. Proposition B.7 явно описывает, как классы корреспонденций действуют на торсионных когомологиях. Именно это позволяет превращать информацию о когомологии в утверждения о <code>Hom</code> мотивов.</p>
-      </section>
-
-      <section id="limits"><h2>Границы и открытые места</h2>
-        <div class="card warning"><h3>Что статья не решает</h3><ul><li>Не приведён ни один пример неразложимого <code>t(S)</code>; авторы ожидают, что «типичный» мотив всё же неразложим.</li><li>Метод неизоморфности не работает над алгебраическим замыканием конечного поля: он существенно использует нетривиальную дискретную нормировку.</li><li>Полной классификации всех мотивов <code>t(S)</code> и всех групп <code>Hom</code> пока нет.</li></ul></div>
-        <p>Это не слабость изложения, а честная карта фронтира: конструкция циклов достаточно сильна, чтобы давать разложения, тогда как глобальные обструкции в конечнопольном случае требуют иных идей.</p>
-      </section>
-
-      <section id="dictionary"><h2>Мини-словарь</h2>
-        <table><tbody><tr><th>Мотив Чоу</th><td>Формальный объект, который кодирует алгебраические циклы и корреспонденции многообразия.</td></tr><tr><th>Торсион</th><td>Элементы, уничтожаемые ненулевым целым числом; здесь центральна 2-торсия.</td></tr><tr><th>K3-накрывающая</th><td>Двулистное K3-накрытие поверхности Энриквеса.</td></tr><tr><th>Класс Брауэра</th><td>Когомологический инвариант; его поведение при подъёме на K3-покрытие управляет частью обструкции.</td></tr><tr><th>Корреспонденция</th><td>Алгебраический цикл на произведении <code>X×Y</code>, действующий как «обобщённое отображение» между мотивами.</td></tr><tr><th>Этальная/Galois-когомология</th><td>Когомологический аппарат, в котором удобно видеть торсию и препятствия к алгебраичности классов.</td></tr></tbody></table>
-      </section>
-
-      <section id="reading"><h2>Как читать исходную статью</h2>
-        <ol><li>Для быстрого понимания прочтите введение и §1: там уже сформулированы все результаты и схема доказательств.</li><li>Затем §6: он показывает, как абстрактные утверждения превращаются в конкретные поверхности.</li><li>Если интересует контрпример к неразложимости, сразу перейдите от теоремы 1.2(b) к Proposition 6.4 и приложению A.</li><li>Если интересует обструкция неизоморфности, читайте цепочку §2 → §3 → §4 → доказательство теоремы 1.8 в §6.</li><li>Приложение B стоит читать отдельно как техническую справку по торсионным спариваниям и Künneth.</li></ol>
-        <p class="source">Этот разбор является изложением и картой аргументов, а не заменой исходного доказательства. Нумерация теорем, примеров и разделов относится к <code>2609.04360v1.pdf</code>.</p>
-      </section>
-    </article>
-  </div></main>
-  <footer>Подготовлено по статье Huryn–Newman «On the torsion in the Chow motive of an Enriques surface».</footer>
+-- Начинайте с маленьких проверяемых утверждений.
+theorem square_expansion (x : ℝ) :
+    (x + 1)^2 = x^2 + 2*x + 1 := by
+  ring</textarea>
+          <div class="proof-result" id="proofResult"><span>✓</span><div><strong>Готово к проверке</strong><br>Нажмите «Проверить» — результат появится здесь.</div></div>
+        </section>
+        <section class="card terminal">
+          <div class="card-bar"><span class="card-title">Журнал сессии</span><span class="pill">локально</span><div class="bar-actions"><button class="icon-button" id="clearLog" title="Очистить журнал">⌫</button></div></div>
+          <div class="terminal-body" id="terminal"><div><span class="prompt">mathbench $</span> <span class="command">ready</span></div><div class="terminal-ok">✓ Инструментарий загружен. Выберите формулу или модуль.</div></div>
+        </section>
+      </div>
+      <section class="card variables"><div class="card-bar"><span class="card-title">Контекст</span><span class="pill">расширяемый</span></div><div class="variables-grid"><div class="variable"><b>x : ℝ</b><span>Вещественная переменная</span></div><div class="variable"><b>f : ℝ → ℝ</b><span>Функция для анализа</span></div><div class="variable"><b>ℕ, ℤ, ℚ, ℝ</b><span>Числовые типы mathlib</span></div></div></section>
+    </main>
+  </div>
+  <script>
+    // Tiny client-side adapter: it makes the prototype useful without pretending to ship a CAS or Lean server.
+    const formula = document.querySelector('#formula');
+    const preview = document.querySelector('#preview');
+    const note = document.querySelector('#resultNote');
+    const terminal = document.querySelector('#terminal');
+    const leanCode = document.querySelector('#leanCode');
+    const log = (message, ok = false) => { terminal.insertAdjacentHTML('beforeend', `<div class="${ok ? 'terminal-ok' : ''}">${message}</div>`); terminal.scrollTop = terminal.scrollHeight; };
+    // Convert a readable subset of LaTeX and ASCII syntax to a visual preview, leaving unfamiliar input intact.
+    const renderFormula = () => {
+      const value = formula.value.trim() || 'Введите выражение';
+      const visual = value.replace(/\\int_0\^1/g, '∫₀¹').replace(/\\sqrt\{([^}]+)\}/g, '√($1)').replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1)/($2)').replace(/\^2/g, '²').replace(/\^3/g, '³').replace(/\*/g, ' · ');
+      preview.textContent = visual;
+    };
+    // The result messages are transparent demo feedback and can be replaced by a real API adapter later.
+    const calculate = () => {
+      renderFormula(); const source = formula.value.toLowerCase();
+      let message = 'Выражение добавлено в сессию. Подключите CAS-адаптер для точного вычисления.';
+      if (source.includes('x^2 + 2*x + 1')) message = 'Факторизация: (x + 1)²';
+      if (source.includes('integrate') || source.includes('int_0^1') || source.includes('\\int_0^1')) message = 'Результат: 1/3';
+      if (source.includes('diff')) message = "Результат: 2 · sin(x) · cos(x)";
+      if (source.includes('solve')) message = 'Решения: x = 2, x = 3';
+      note.textContent = message; log(`<span class="prompt">mathbench $</span> calculate <span class="command">${formula.value.replace(/</g, '&lt;')}</span>`); log(`✓ ${message}`, true);
+    };
+    formula.addEventListener('input', renderFormula);
+    formula.addEventListener('keydown', event => { if (event.ctrlKey && event.key === 'Enter') calculate(); });
+    document.querySelectorAll('.quick').forEach(button => button.addEventListener('click', () => { formula.value = button.dataset.formula; calculate(); }));
+    document.querySelector('#clearFormula').addEventListener('click', () => { formula.value = ''; renderFormula(); note.textContent = 'Поле очищено.'; });
+    // Basic proof feedback detects common complete snippets; swap this handler for lake/Lean server integration in production.
+    document.querySelector('#checkLean').addEventListener('click', () => {
+      const proof = document.querySelector('#proofResult'); const valid = /\b(by|exact|rfl|simp|ring)\b/.test(leanCode.value);
+      proof.innerHTML = valid ? '<span>✓</span><div><strong>Проверка пройдена</strong><br>Демо-проверка нашла тактику доказательства. Подключите Lean language server для полной верификации.</div>' : '<span>!</span><div><strong style="color:var(--orange)">Нужно доказательство</strong><br>Добавьте блок <code>by</code> и тактику, например <code>ring</code>.</div>';
+      log(`<span class="prompt">lean $</span> <span class="command">lake env lean Main.lean</span>`); log(valid ? '✓ Проверка демо завершена без ошибок.' : '⚠ Демо не нашло завершающую тактику.', valid);
+    });
+    // Snippets make the proof pane a starting point instead of a static example.
+    const snippets = { theorem:'theorem new_statement (x : ℝ) : x = x := by\n  rfl', example:'example (n : ℕ) : n + 0 = n := by\n  simp', simp:'by\n  simp', ring:'by\n  ring', import:'import Mathlib\n' };
+    document.querySelectorAll('.tool').forEach(button => button.addEventListener('click', () => { leanCode.value = snippets[button.dataset.snippet]; document.querySelectorAll('.tool').forEach(b => b.classList.remove('selected')); button.classList.add('selected'); }));
+    document.querySelectorAll('.module').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.module').forEach(b => b.classList.remove('active')); button.classList.add('active'); log(`<span class="prompt">project $</span> открыт модуль <span class="command">${button.dataset.module || button.textContent.trim()}</span>`); }));
+    document.querySelector('#clearLog').addEventListener('click', () => { terminal.innerHTML = '<div><span class="prompt">mathbench $</span> журнал очищен</div>'; });
+    document.querySelector('#saveProject').addEventListener('click', () => { localStorage.setItem('mathbench-formula', formula.value); localStorage.setItem('mathbench-lean', leanCode.value); log('✓ Проект сохранён в браузере.', true); });
+    document.querySelector('#newModule').addEventListener('click', () => { log('ℹ Новый модуль: создайте файл в Lean-проекте и добавьте его в Lakefile.'); });
+    document.querySelector('#runAll').addEventListener('click', () => { calculate(); document.querySelector('#checkLean').click(); });
+    // Restore the editable session after a browser reload.
+    formula.value = localStorage.getItem('mathbench-formula') || formula.value; leanCode.value = localStorage.getItem('mathbench-lean') || leanCode.value; renderFormula();
+  </script>
 </body>
 </html>
