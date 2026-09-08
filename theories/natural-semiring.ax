@@ -1,0 +1,33 @@
+# Натуральные числа как полукольцо
+#
+# Это исходный файл теории для будущего проверщика. Сейчас `js/libraries/
+# natural-semiring.js` исполняет те же рекурсивные определения в браузере.
+# Позже парсер теории должен читать этот формат напрямую, строить AST типов и
+# проверять доказательства, а не только вычислять закрытые выражения.
+
+inductive Nat where
+  | zero : Nat
+  | succ : Nat -> Nat
+
+# Сложение определено рекурсией по первому аргументу.
+def add : Nat -> Nat -> Nat
+  | zero, b => b
+  | succ a, b => succ (add a b)
+
+# У натуральных нет отрицательных чисел. Поэтому sub — насыщенное вычитание:
+# результат a - b не опускается ниже zero.
+def sub : Nat -> Nat -> Nat
+  | zero, b => zero
+  | succ a, zero => succ a
+  | succ a, succ b => sub a b
+
+# Умножение определено через уже заданное сложение.
+def mul : Nat -> Nat -> Nat
+  | zero, b => zero
+  | succ a, b => add (mul a b) b
+
+# Минимальные законы, из которых дальше можно собирать доказательства
+# полукольца. Синтаксис `by` пока является проектной документацией.
+theorem add_zero_right (a : Nat) : add a zero = a := by induction a
+theorem mul_zero_right (a : Nat) : mul a zero = zero := by induction a
+theorem distributive (a b c : Nat) : mul a (add b c) = add (mul a b) (mul a c) := by induction a

@@ -1,0 +1,115 @@
+:root {
+  --window: #f3f3f3;
+  --sidebar: #f7f7f7;
+  --editor: #ffffff;
+  --line: #d4d4d4;
+  --ink: #1e1e1e;
+  --muted: #6b6b6b;
+  --blue: #0067c0;
+  --blue-dark: #005a9e;
+  --green: #167443;
+  --red: #b3261e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--window);
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+}
+
+button, textarea { font: inherit; }
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 42px;
+  padding: 0 12px;
+  color: #fff;
+  background: var(--blue);
+}
+
+.app-mark { font-size: 17px; font-weight: 600; }
+.titlebar span { opacity: .88; }
+
+.run-button {
+  margin-left: auto;
+  padding: 6px 12px;
+  cursor: pointer;
+  color: #fff;
+  background: var(--blue-dark);
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 245px minmax(480px, 1fr) 250px;
+  min-height: calc(100vh - 66px);
+}
+
+.sidebar, .inspector {
+  padding: 18px 14px;
+  background: var(--sidebar);
+}
+
+.sidebar { border-right: 1px solid var(--line); }
+.inspector { border-left: 1px solid var(--line); }
+
+h2 {
+  margin: 0 0 9px;
+  color: #555;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+
+section { margin-bottom: 23px; }
+.tree-item { padding: 6px 8px; border-radius: 2px; }
+.tree-item.active { color: #fff; background: var(--blue); }
+.indent { padding-left: 27px; color: var(--muted); }
+
+.library-list { display: grid; gap: 3px; }
+.library-item { display: flex; align-items: center; gap: 7px; padding: 5px; cursor: pointer; }
+.library-item:hover { background: #e9e9e9; }
+.library-item input { accent-color: var(--blue); }
+
+.help { color: #555; font-size: 12px; line-height: 1.45; }
+.help p { margin: 7px 0; }
+code { padding: 1px 3px; color: #313131; background: #e9e9e9; font-family: Consolas, monospace; }
+kbd { padding: 1px 4px; border: 1px solid #aaa; border-radius: 2px; background: #fff; }
+
+.notebook { padding: 25px 40px 50px; background: var(--editor); }
+.document-head { display: flex; align-items: end; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.eyebrow { color: var(--muted); font-size: 11px; }
+.document-head h1 { margin: 4px 0 0; font-size: 22px; font-weight: 500; }
+.status { color: var(--green); font-size: 11px; font-weight: 600; }
+.status.error { color: var(--red); }
+.cells { padding-top: 13px; }
+
+.cell { display: grid; grid-template-columns: 38px minmax(0, 1fr); margin: 8px 0 14px; }
+.line-no { padding: 9px 11px 0 0; color: #999; text-align: right; user-select: none; font: 12px Consolas, monospace; }
+.cell-body { border: 1px solid transparent; }
+.cell-body:focus-within { border-color: #8cbce5; box-shadow: 0 0 0 1px #d5ebfb; }
+.source { display: block; width: 100%; min-height: 36px; padding: 8px 10px; resize: none; overflow: hidden; border: 0; outline: 0; color: #1e1e1e; background: #fff; font: 14px/20px Consolas, "Courier New", monospace; }
+.result { display: block; min-height: 0; padding: 0 10px; color: #333; font: 13px/19px Consolas, monospace; white-space: pre-wrap; }
+.result:not(:empty) { padding-top: 5px; padding-bottom: 6px; border-top: 1px solid #eee; background: #fafafa; }
+.result.error { color: var(--red); }.result.proof { color: var(--green); }
+.add-cell { margin-left: 38px; padding: 6px 10px; cursor: pointer; color: var(--blue); border: 1px solid #b9b9b9; border-radius: 2px; background: #fff; }
+.add-cell:hover { background: #f2f8fd; }
+
+.metric { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #e2e2e2; }
+.metric b { color: var(--blue); }
+.inspector p { color: #555; font-size: 12px; line-height: 1.5; }
+.inspector hr { margin: 22px 0; border: 0; border-top: 1px solid var(--line); }
+
+footer { display: flex; align-items: center; gap: 18px; height: 24px; padding: 0 12px; color: #444; border-top: 1px solid #b6b6b6; background: #e9e9e9; font-size: 11px; }
+footer span:last-child { margin-left: auto; }
+
+@media (max-width: 900px) { .workspace { grid-template-columns: 210px 1fr; }.inspector { display: none; } }
+@media (max-width: 600px) { .workspace { display: block; }.sidebar { display: none; }.notebook { padding: 18px 14px 40px; }.titlebar span { display: none; } }
