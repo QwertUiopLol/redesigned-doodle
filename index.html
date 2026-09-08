@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Простой блокнот для собственных модулей математики." />
+    <title>Математический блокнот</title>
+    <link rel="stylesheet" href="styles/main.css" />
+  </head>
+  <body>
+    <main class="program-window">
+      <header class="title-bar">
+        <span class="window-mark">◆</span>
+        <strong>Математический блокнот</strong>
+        <span class="title-detail">локальная учебная система</span>
+      </header>
+
+      <section class="toolbar" aria-label="Действия блокнота">
+        <button id="add-cell" type="button">Новая строка</button>
+        <button id="clear-notebook" type="button">Очистить</button>
+        <span>Выполнить: <kbd>Enter</kbd></span>
+      </section>
+
+      <div class="paper-layout">
+        <aside class="module-list" aria-label="Список модулей">
+          <h1>Модули</h1>
+          <ol>
+            <li><strong>0. Натуральные числа</strong><small>0, 1, 2, … — основа языка.</small></li>
+            <li><strong>1. Сложение и вычитание</strong><small><code>+</code> и <code>-</code>; без отрицательных результатов.</small></li>
+            <li><strong>2. Проверка равенства</strong><small>Пока сравнивает вычисленные части; замените своим проверщиком.</small></li>
+          </ol>
+          <p class="module-note">Каждый модуль — отдельный файл в <code>src/modules/</code>. Внешние библиотеки не используются.</p>
+        </aside>
+
+        <section class="notebook-area" aria-label="Страницы вычислений">
+          <div class="notebook-heading">
+            <div><p>ЛИСТ 1</p><h2>Натуральная арифметика</h2></div>
+            <span>только: <code>0–9 + - ( ) =</code></span>
+          </div>
+          <div id="notebook" class="notebook"></div>
+          <p class="instruction">Введите выражение, например <code>12 + 7</code>, или равенство, например <code>12 + 7 = 19</code>. Нажмите Enter.</p>
+        </section>
+      </div>
+    </main>
+
+    <template id="cell-template">
+      <article class="cell">
+        <span class="line-number" aria-hidden="true"></span>
+        <input class="expression-input" aria-label="Выражение из натуральных чисел" autocomplete="off" spellcheck="false" />
+        <output class="cell-output"> </output>
+        <button class="remove-cell" type="button" aria-label="Удалить строку">×</button>
+      </article>
+    </template>
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
