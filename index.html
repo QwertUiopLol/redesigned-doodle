@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>axiom — математическая тетрадь</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="titlebar">
+      <div class="window-controls" aria-hidden="true"><i></i><i></i><i></i></div>
+      <strong>AXIOM</strong><span>Математическая тетрадь / proof workbench</span>
+      <button id="run-button" class="run-button" title="Выполнить всё (Ctrl + Enter)">▶ ВЫЧИСЛИТЬ</button>
+    </header>
+
+    <main class="workspace">
+      <aside class="sidebar">
+        <section>
+          <h2>ПРОЕКТ</h2>
+          <div class="tree-item active">▾ <span>Основная тетрадь</span></div>
+          <div class="tree-item indent">▤ scratch.ax</div>
+        </section>
+        <section>
+          <h2>БИБЛИОТЕКИ</h2>
+          <div id="library-list" class="library-list"></div>
+        </section>
+        <section class="help">
+          <h2>КРАТКАЯ СПРАВКА</h2>
+          <p><code>let x = 5</code> — определить имя</p>
+          <p><code>1 + 2 * 3</code> — вычислить выражение</p>
+          <p><code>theorem t: 2 + 2 = 4</code> — проверить равенство</p>
+          <p><code>:load naturals</code> — подключить модуль</p>
+          <p><kbd>Ctrl</kbd> + <kbd>Enter</kbd> — запустить</p>
+        </section>
+      </aside>
+
+      <section class="notebook" aria-label="Математическая тетрадь">
+        <div class="document-head">
+          <div><span class="eyebrow">ФАЙЛ</span><h1>scratch.ax</h1></div>
+          <span id="status" class="status">ГОТОВ</span>
+        </div>
+        <div id="cells" class="cells"></div>
+        <button id="add-cell" class="add-cell">+ новая строка</button>
+      </section>
+
+      <aside class="inspector">
+        <h2>СОСТОЯНИЕ СЕССИИ</h2>
+        <div class="metric"><span>Определений</span><b id="definition-count">0</b></div>
+        <div class="metric"><span>Теорем доказано</span><b id="proof-count">0</b></div>
+        <div class="metric"><span>Подключено</span><b id="module-count">0</b></div>
+        <hr />
+        <h2>КАК РАСШИРЯТЬ</h2>
+        <p>Новые правила и математические объекты добавляйте отдельными ES-модулями в <code>js/libraries/</code>.</p>
+        <p>Мини-парсер и ядро проверок лежат в <code>js/core/</code>; интерфейс ничего не знает о конкретной математике.</p>
+      </aside>
+    </main>
+
+    <footer><span>AXIOM 0.1.0</span><span>Локальная сессия · без сервера</span><span id="footer-message">строка 1</span></footer>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
